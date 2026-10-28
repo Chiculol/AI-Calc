@@ -76,7 +76,19 @@ etapas pequenas, cada uma com testes automáticos.
   <img src="docs/imagens/escuro-gaveta-historico.png" alt="Gaveta do histórico aberta na janela estreita, tema escuro" width="30%">
 </p>
 
-## Como rodar
+## Baixar
+
+Para usar sem instalar nada: baixe o **`AI Calc.exe`** na página de
+[Releases](https://github.com/Chiculol/AI-Calc/releases/latest) e abra com dois cliques
+(Windows 10 ou 11).
+
+> Na primeira vez, o Windows pode mostrar **"O Windows protegeu o computador"**, porque o
+> executável não tem assinatura digital (ela é paga). Clique em **Mais informações** e depois em
+> **Executar assim mesmo**.
+
+O histórico e as preferências ficam em `%APPDATA%\AI Calc`.
+
+## Como rodar a partir do código
 
 Requisitos: Windows 10 ou 11 e Python 3.12 ou mais novo.
 
@@ -89,11 +101,19 @@ pip install -r requirements.txt
 python -m ai_calc
 ```
 
-> **Dica:** no Windows, o PySide6 não carrega se o caminho da pasta do ambiente virtual for
-> muito longo. Se aparecer o erro `DLL load failed ... nome do arquivo ou a extensão é muito
-> grande`, crie o ambiente num caminho curto (por exemplo, `C:\venvs\ai_calc`).
+> **Dica:** no Windows, o PySide6 não carrega se o caminho da pasta do projeto for muito longo.
+> Se aparecer o erro `DLL load failed ... nome do arquivo ou a extensão é muito grande`, clone
+> o projeto numa pasta de caminho curto (por exemplo, `C:\Projetos\AI-Calc`).
 
-O histórico e as preferências ficam em `%APPDATA%\AI Calc`.
+### Gerar o executável
+
+```bash
+pip install -r requirements-build.txt
+python tools/gerar_executavel.py
+```
+
+O `AI Calc.exe` (um arquivo só, cerca de 45 MB) aparece em `dist/`. O ícone vem de
+`assets/ai_calc.ico`, que `tools/gerar_icone.py` desenha a partir do código do app.
 
 ## Testes
 
@@ -139,7 +159,7 @@ As decisões de comportamento (porcentagem, fatorial, erros, precedência...) es
 | 2 | Lógica do círculo trigonométrico | ✅ |
 | 3 | Interface Comum e Científica, tema claro/escuro, vidro, histórico e preferências | ✅ |
 | 4 | Aba Trigonometria: círculo interativo e gráficos | ✅ |
-| 5 | Acabamento: mostrar/esconder cada função, transições, ícone e executável | em andamento |
+| 5 | Acabamento: mostrar/esconder cada função, transições, ícone e executável | ✅ |
 
 ## Licença
 

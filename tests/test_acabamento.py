@@ -4,6 +4,7 @@ import math
 
 import pytest
 from PySide6.QtCore import QPoint, QPointF, Qt
+from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import QApplication
 
 from ai_calc.core.preferences import Preferences
@@ -21,6 +22,7 @@ from ai_calc.ui.theme import (
     surface_colors,
 )
 from ai_calc.ui.trig_circle import QUADRANT_LABEL_GAP
+from tests.ajudantes import distancia
 
 TODAS = frozenset(TRIG_FUNCTIONS)
 
@@ -113,11 +115,6 @@ def test_teclado_liga_e_desliga(qtbot, tmp_path):
     assert "cos" not in pagina.visible
 
 
-def _distancia(cor, hex_cor):
-    alvo = int(hex_cor[1:3], 16), int(hex_cor[3:5], 16), int(hex_cor[5:7], 16)
-    return sum(abs(a - b) for a, b in zip((cor.red(), cor.green(), cor.blue()), alvo))
-
-
 def test_tangente_desligada_nao_e_desenhada(qtbot, tmp_path):
     pagina = _janela(qtbot, tmp_path).trig_page
     pagina.state.set_angle(45)
@@ -130,7 +127,7 @@ def test_tangente_desligada_nao_e_desenhada(qtbot, tmp_path):
     def menor_distancia():
         imagem = circulo.grab().toImage()
         perto = [imagem.pixelColor(ponto + QPoint(dx, dy)) for dx in (-1, 0, 1) for dy in range(-4, 5)]
-        return min(_distancia(c, cor_tan) for c in perto)
+        return min(distancia(c, cor_tan) for c in perto)
 
     assert menor_distancia() < 120
     qtbot.mouseClick(pagina.toggles["tan"], Qt.MouseButton.LeftButton)
@@ -177,8 +174,6 @@ def test_texto_longo_no_campo_diminui(qtbot, tmp_path):
     campo.set_value("-0,707106781187")
     longo = campo.edit.font().pointSize()
     assert longo < curto
-    from PySide6.QtGui import QFontMetrics
-
     assert QFontMetrics(campo.edit.font()).horizontalAdvance(campo.edit.text()) <= campo.edit.width()
 
 

@@ -7,7 +7,7 @@ from PySide6.QtCore import QPoint, Qt
 from ai_calc.core.history import History
 from ai_calc.core.preferences import Preferences
 from ai_calc.ui.app import HISTORY_FILE, PREFERENCES_FILE, build_window, create_app
-from ai_calc.ui.history_panel import GlassScrollBar, HistoryItemButton
+from ai_calc.ui.history_panel import GlassScrollBar
 from ai_calc.ui.keypad import ANGLE_MODE, EVALUATE
 from ai_calc.ui.main_window import DOCK_MIN_WIDTH, MIN_HEIGHT, MIN_WIDTH, SCIENTIFIC_TAB, MainWindow
 from ai_calc.ui.theme import (
@@ -24,6 +24,7 @@ from ai_calc.ui.theme import (
     min_contrast,
     surface_colors,
 )
+from tests.ajudantes import distancia
 
 
 def _janela(qtbot, pasta, largura=700, **tema):
@@ -163,11 +164,6 @@ def test_confirmacao_navegavel_por_tab(qtbot, janela):
     assert resultados(janela) == []
 
 
-def _distancia(cor, hex_cor):
-    alvo = int(hex_cor[1:3], 16), int(hex_cor[3:5], 16), int(hex_cor[5:7], 16)
-    return sum(abs(a - b) for a, b in zip((cor.red(), cor.green(), cor.blue()), alvo))
-
-
 @pytest.mark.parametrize("nome", [LIGHT, DARK])
 def test_confirmacao_segue_o_tema(qtbot, janela, nome):
     janela.theme.set_theme(nome)
@@ -175,13 +171,13 @@ def test_confirmacao_segue_o_tema(qtbot, janela, nome):
     imagem = dialogo.card.grab().toImage()
     cor = imagem.pixelColor(QPoint(12, imagem.height() // 2))
     outro = DARK if nome == LIGHT else LIGHT
-    assert _distancia(cor, PALETTES[nome]["display_bg"]) < _distancia(cor, PALETTES[outro]["display_bg"])
+    assert distancia(cor, PALETTES[nome]["display_bg"]) < distancia(cor, PALETTES[outro]["display_bg"])
     # Botões da confirmação também são de vidro com as cores do tema.
     assert dialogo.cancel_button.role == "digit"
     janela.theme.set_theme(outro)                 # mudar o tema com a janela aberta também vale
     imagem = dialogo.card.grab().toImage()
     cor = imagem.pixelColor(QPoint(12, imagem.height() // 2))
-    assert _distancia(cor, PALETTES[outro]["display_bg"]) < _distancia(cor, PALETTES[nome]["display_bg"])
+    assert distancia(cor, PALETTES[outro]["display_bg"]) < distancia(cor, PALETTES[nome]["display_bg"])
     dialogo.reject()
 
 

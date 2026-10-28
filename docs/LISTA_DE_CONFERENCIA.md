@@ -107,3 +107,14 @@ conta ou da primeira mudança de tema, modo ou aba.
       "reduzir movimento", trocam na hora.
 - [ ] O ícone do AI Calc (calculadora com a onda do seno) aparece na janela e na barra de
       tarefas (não o do Python).
+
+## 10. Executável (Etapa 5B)
+
+- [ ] Baixe o `AI Calc.exe` da página de Releases (ou gere com `tools/gerar_executavel.py`).
+- [ ] Abra com dois cliques. Se aparecer "O Windows protegeu o computador": Mais informações →
+      Executar assim mesmo.
+- [ ] O ícone da calculadora aparece no arquivo, na janela e na barra de tarefas.
+- [ ] Não abre janela preta de console junto.
+- [ ] O histórico e as preferências são os mesmos de quando o app roda pelo Python
+      (mesma pasta `%APPDATA%\AI Calc`).
+- [ ] Repita rapidamente as seções 1, 4 e 8 no executável.

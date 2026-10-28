@@ -24,8 +24,8 @@ Leia também `docs/ESPECIFICACAO.md`: ela tem todas as decisões já aprovadas
 | 3D | Histórico, preferências e lista de conferência final | feita |
 | 4A | Aba Trigonometria: círculo interativo, painel e campos | feita |
 | 4B | Gráficos, layout largo/estreito, animação do ponto, conferência | feita |
-| 5A | Liga/desliga das funções, ajustes visuais, transições, ícone, licença | feita (576 testes no total) |
-| 5B | Executável (PyInstaller) em Release no GitHub, revisão final, docs | **próxima** |
+| 5A | Liga/desliga das funções, ajustes visuais, transições, ícone, licença | feita |
+| 5B | Executável (PyInstaller) em Release no GitHub, revisão final, docs | feita (576 testes no total) |
 
 Comandos (da raiz do projeto): `pip install -r requirements.txt`, `pytest` e `python -m ai_calc` (abre o app).
 Os testes de janela usam pytest-qt em modo offscreen (`tests/conftest.py`).
@@ -80,7 +80,6 @@ Rodar com `.venv\Scripts\python -m ai_calc` e `.venv\Scripts\python -m pytest`.
 - Contraste testado sobre o vidro (`surface_colors`/`backdrop_colors`): 4,5:1 texto, 3:1 foco e ícone.
   Ao criar um elemento novo, dê cor a ele pela paleta e acrescente-o aos testes de contraste.
 - "Reduzir movimento" do Windows (`ui/system.py`) desliga a transição e as animações de clique.
-- Aba Trigonometria: "Trig. · Em breve" (nome acessível completo) até a Etapa 4.
 
 ## Etapa 3D (feita)
 
@@ -137,6 +136,16 @@ Rodar com `.venv\Scripts\python -m ai_calc` e `.venv\Scripts\python -m pytest`.
 - Ícone (calculadora com a onda do seno no visor) desenhado em `icons.paint_app_icon`/`app_icon`;
   `AppUserModelID` para a barra de tarefas.
 - Licença MIT (`LICENSE`). Cores do escuro: seno `#FFB3D9` e cosseno `#A8D6FF` (contraste nos botões).
+
+## Etapa 5B (feita)
+
+- Executável: `requirements-build.txt` (PyInstaller + Pillow), `tools/gerar_icone.py` (gera
+  `assets/ai_calc.ico` com os 7 tamanhos a partir de `paint_app_icon`), `tools/iniciar.py`
+  (ponto de entrada) e `tools/gerar_executavel.py` (`--onefile --windowed`, sem módulos do Qt
+  que o app não usa). Saída em `dist/` (ignorada pelo git), cerca de 45 MB.
+- Publicação: Release no GitHub com o `AI Calc.exe` anexado (não vai para o repositório).
+- Testes: `tests/ajudantes.py` (`distancia` entre cores, usada pelos testes de janela).
+- Fluxo de trabalho: uma branch por etapa, PR no GitHub e merge depois do ok do Francisco.
 
 ## Interface (Etapas 3 e 4)
 
