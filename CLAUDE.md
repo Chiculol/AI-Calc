@@ -134,7 +134,8 @@ Rodar com `.venv\Scripts\python -m ai_calc` e `.venv\Scripts\python -m pytest`.
   lado do eixo vertical. `GlassField` diminui a fonte (até 8 pt) quando o texto não cabe.
 - `ui/motion.py` (`fade_in`, 150 ms): troca de aba, seletor Círculo/Gráficos e resultado do "=".
   Desligado com "reduzir movimento". Testes que fotografam a janela esperam o efeito acabar.
-- Ícone desenhado em `icons.paint_app_icon`/`app_icon`; `AppUserModelID` para a barra de tarefas.
+- Ícone (calculadora com a onda do seno no visor) desenhado em `icons.paint_app_icon`/`app_icon`;
+  `AppUserModelID` para a barra de tarefas.
 - Licença MIT (`LICENSE`). Cores do escuro: seno `#FFB3D9` e cosseno `#A8D6FF` (contraste nos botões).
 
 ## Interface (Etapas 3 e 4)

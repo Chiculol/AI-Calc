@@ -170,5 +170,6 @@ Funções exigem parênteses (`sin 30` mostra "Use parênteses: sin(30)").
   larga, alinhados à direita). Desligado: amostra cinza e nome riscado. A última ligada fica
   desativada. A escolha é salva.
 - Etapa 5A: esmaecer de 150 ms na troca de aba, no seletor Círculo/Gráficos e no resultado do "=".
-- Etapa 5A: ícone próprio (degradê roxo → turquesa com o círculo trigonométrico e o seno em âmbar).
+- Etapa 5A: ícone próprio: calculadora em degradê roxo → turquesa com a onda do seno em âmbar
+  no visor e a tecla "=" em âmbar (2 × 2 teclas nos tamanhos pequenos).
 - Etapa 5A: licença MIT, em nome de Francisco Aurélio.

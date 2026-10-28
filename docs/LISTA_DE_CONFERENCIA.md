@@ -105,4 +105,5 @@ conta ou da primeira mudança de tema, modo ou aba.
 - [ ] Janela estreita, seno `-0,707106781187`: o texto do campo diminui e cabe.
 - [ ] Trocar de aba, trocar Círculo/Gráficos e apertar "=" esmaecem rapidamente; com
       "reduzir movimento", trocam na hora.
-- [ ] O ícone do AI Calc aparece na janela e na barra de tarefas (não o do Python).
+- [ ] O ícone do AI Calc (calculadora com a onda do seno) aparece na janela e na barra de
+      tarefas (não o do Python).
