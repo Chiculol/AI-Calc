@@ -1,0 +1,76 @@
+# AI Calc: lista de conferência da Etapa 3
+
+Marque cada item depois de testar. Abra o app com:
+
+```
+C:\Users\fcoau\.venvs\ai_calc\Scripts\python -m ai_calc
+```
+
+(rodando na pasta do projeto). Para os testes automáticos: `C:\Users\fcoau\.venvs\ai_calc\Scripts\python -m pytest`.
+
+Os arquivos do app ficam em `%APPDATA%\AI Calc` (cole isso na barra de endereço do Explorador
+de Arquivos): `historico.json` e `preferencias.json`. Eles só aparecem depois da primeira
+conta ou da primeira mudança de tema, modo ou aba.
+
+## 1. Contas (aba Comum)
+
+- [ ] `2 + 3 =` dá 5; `200 + 10 % =` dá 220; `, 5 × 3 =` dá 1,5.
+- [ ] Depois do `=`, um operador continua do resultado (`× 2 =`); um número começa conta nova.
+- [ ] `5 ÷ 0 =` mostra "Divisão por zero inválida" e o app continua aberto.
+- [ ] `2 ( 3 + 4 ) =` mostra "Interpretado como: 2 × (3 + 4)".
+- [ ] Teclado físico: `12*3-6/2` e Enter dá 33; `.` vira vírgula; Backspace apaga; Esc limpa.
+
+## 2. Aba Científica
+
+- [ ] `sin 30 ) =` dá 0,5 em DEG; tecla DEG vira RAD e o canto do visor acompanha.
+- [ ] Em RAD, `sin π ÷ 2 ) =` dá 1. `tan 90 ) =` em DEG mostra "Indefinida".
+- [ ] `ⁿ√ 3 ; − 8 ) =` dá -2; `2 − 8 =` e depois `x² =` dá 36.
+- [ ] Na largura mínima (360 × 560) todas as teclas aparecem inteiras.
+
+## 3. Tema, vidro e movimento
+
+- [ ] Sem escolha salva, o app abre no tema do Windows (Configurações › Personalização › Cores).
+- [ ] O botão de lua/sol troca o tema em cerca de meio segundo; tudo muda junto
+      (fundo, visor, teclas, abas, ícones, histórico e janela de confirmação).
+- [ ] Dois cliques rápidos: a animação volta do ponto onde estava, sem travar.
+- [ ] Clique nas teclas: afundam um pouco; passar o mouse clareia.
+- [ ] **Reduzir movimento**: Configurações › Acessibilidade › Efeitos visuais › desligue
+      "Efeitos de animação". A troca de tema fica instantânea, as teclas não animam e a gaveta
+      do histórico aparece sem deslizar. Religue depois.
+
+## 4. Histórico
+
+- [ ] Janela larga (a partir de 660 px): o painel do histórico fica à direita.
+- [ ] Janela estreita: aparece o botão de relógio; ele abre a gaveta, que fecha com ✕, com Esc,
+      com o mesmo botão ou ao escolher um número.
+- [ ] Contas certas entram (mais nova em cima); contas com erro não entram; máximo de 20.
+- [ ] Contas com seno, cosseno ou tangente mostram DEG ou RAD; as outras não.
+- [ ] Clicar num item insere só o número. Um número negativo entra entre parênteses: `(-6)`.
+- [ ] Com mais itens do que cabem, a barra de rolagem aparece fina e nas cores do tema.
+- [ ] "Limpar" abre a confirmação de vidro (não a janela padrão do Windows); "Cancelar" mantém,
+      Esc cancela, "Limpar" apaga.
+- [ ] Feche e abra o app: o histórico continua lá.
+
+## 5. Preferências
+
+- [ ] Escolha o tema escuro, o modo RAD e a aba Científica; feche e abra: tudo volta igual.
+- [ ] A escolha salva de tema vale mesmo se o Windows estiver no outro tema.
+
+## 6. Arquivo corrompido (simulação)
+
+1. Feche o app.
+2. Abra `%APPDATA%\AI Calc\historico.json` no Bloco de Notas, apague um pedaço
+   (por exemplo, a última chave `}`) e salve.
+3. Abra o app: ele abre normalmente com o histórico vazio.
+4. Na pasta aparece `historico.corrompido-AAAAMMDD-HHMMSS.json` (o arquivo estragado guardado).
+5. Faça uma conta: um `historico.json` novo é criado.
+6. Repita com `preferencias.json`: o app abre no padrão (tema do Windows, DEG, aba Comum) e
+   guarda `preferencias.corrompido-...json`.
+
+## 7. Acessibilidade
+
+- [ ] Tab percorre abas, botões do topo, teclas, Limpar e itens do histórico, com contorno de
+      foco visível nos dois temas; Espaço aperta o item em foco.
+- [ ] Na confirmação, o foco começa em "Cancelar" e o Tab só circula entre os dois botões.
+- [ ] Com o Narrador do Windows (Ctrl + Win + Enter), as teclas e itens são lidos pelo nome
+      (ex.: "Multiplicar", "sin(30) igual a 0,5, graus", "Limpar histórico").
