@@ -17,6 +17,7 @@ from ai_calc.ui.theme import (
     min_contrast,
     surface_colors,
 )
+from tests.ajudantes import distancia
 
 
 def _janela(qtbot, pasta, largura=700, altura=640):
@@ -231,11 +232,6 @@ def test_contraste_das_funcoes(tema):
     assert min_contrast(paleta, "error", painel) >= 4.5      # aviso dos campos, dentro do painel
 
 
-def _distancia(cor, hex_cor):
-    alvo = int(hex_cor[1:3], 16), int(hex_cor[3:5], 16), int(hex_cor[5:7], 16)
-    return sum(abs(a - b) for a, b in zip((cor.red(), cor.green(), cor.blue()), alvo))
-
-
 @pytest.mark.parametrize("nome", [LIGHT, DARK])
 def test_segmentos_com_as_cores_do_tema(qtbot, janela, pagina, nome):
     janela.theme.set_theme(nome)
@@ -250,11 +246,11 @@ def test_segmentos_com_as_cores_do_tema(qtbot, janela, pagina, nome):
     seno = QPointF(centro.x() + raio * c, centro.y() - raio * c / 2).toPoint()
     outro = DARK if nome == LIGHT else LIGHT
     cor = imagem.pixelColor(seno)
-    assert _distancia(cor, PALETTES[nome]["trig_sin"]) < _distancia(cor, PALETTES[outro]["trig_sin"])
-    assert _distancia(cor, PALETTES[nome]["trig_sin"]) < 120
+    assert distancia(cor, PALETTES[nome]["trig_sin"]) < distancia(cor, PALETTES[outro]["trig_sin"])
+    assert distancia(cor, PALETTES[nome]["trig_sin"]) < 120
     tangente = QPointF(centro.x() + raio, centro.y() - raio * 0.5).toPoint()
     perto = [imagem.pixelColor(tangente + QPoint(dx, dy)) for dx in (-1, 0, 1) for dy in range(-4, 5)]
-    assert min(_distancia(p, PALETTES[nome]["trig_tan"]) for p in perto) < 120
+    assert min(distancia(p, PALETTES[nome]["trig_tan"]) for p in perto) < 120
 
 
 def test_botao_desativado_parece_desativado(qtbot, pagina):
@@ -264,4 +260,4 @@ def test_botao_desativado_parece_desativado(qtbot, pagina):
     imagem = botao.grab().toImage()
     cor = imagem.pixelColor(QPoint(8, botao.height() // 2))
     tema = pagina._theme.name
-    assert _distancia(cor, PALETTES[tema]["tab_disabled_bg"]) < _distancia(cor, PALETTES[tema]["function_bg"])
+    assert distancia(cor, PALETTES[tema]["tab_disabled_bg"]) < distancia(cor, PALETTES[tema]["function_bg"])

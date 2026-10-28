@@ -22,6 +22,7 @@ from ai_calc.ui.theme import (
     min_contrast,
     surface_colors,
 )
+from tests.ajudantes import distancia
 
 TEXT_MIN = 4.5
 UI_MIN = 3.0     # contorno de foco e ícones
@@ -213,11 +214,6 @@ def test_todos_os_elementos_mudam_juntos(qtbot, janela):
         assert c != e, nome
 
 
-def _distancia(cor, hex_cor):
-    alvo = int(hex_cor[1:3], 16), int(hex_cor[3:5], 16), int(hex_cor[5:7], 16)
-    return sum(abs(a - b) for a, b in zip((cor.red(), cor.green(), cor.blue()), alvo))
-
-
 @pytest.mark.parametrize("nome", [LIGHT, DARK])
 def test_cada_elemento_usa_a_paleta_do_tema(qtbot, janela, nome):
     foto = _foto(qtbot, janela, 0.0 if nome == LIGHT else 1.0)
@@ -236,7 +232,7 @@ def test_cada_elemento_usa_a_paleta_do_tema(qtbot, janela, nome):
     pontos = _pontos(janela)
     for elemento, chave in chaves.items():
         cor = foto.pixelColor(pontos[elemento])
-        assert _distancia(cor, PALETTES[nome][chave]) < _distancia(cor, PALETTES[outro][chave]), elemento
+        assert distancia(cor, PALETTES[nome][chave]) < distancia(cor, PALETTES[outro][chave]), elemento
 
 
 def test_icone_cruza_lua_e_sol(qtbot, janela):

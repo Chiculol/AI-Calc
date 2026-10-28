@@ -173,3 +173,5 @@ Funções exigem parênteses (`sin 30` mostra "Use parênteses: sin(30)").
 - Etapa 5A: ícone próprio: calculadora em degradê roxo → turquesa com a onda do seno em âmbar
   no visor e a tecla "=" em âmbar (2 × 2 teclas nos tamanhos pequenos).
 - Etapa 5A: licença MIT, em nome de Francisco Aurélio.
+- Etapa 5B: executável de um arquivo só (`AI Calc.exe`, sem console), publicado como anexo de uma
+  Release no GitHub; o README explica o aviso do Windows para executáveis sem assinatura.

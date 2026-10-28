@@ -7,6 +7,7 @@ from ai_calc.ui.app import build_window, create_app
 from ai_calc.ui.main_window import MIN_HEIGHT, MIN_WIDTH, TRIG_TAB
 from ai_calc.ui.theme import DARK, LIGHT, PALETTES
 from ai_calc.ui.trig_page import GRAPHS_VIEW, POINT_MS, WIDE_MIN_WIDTH
+from tests.ajudantes import distancia
 
 
 def _janela(qtbot, pasta, largura=760, altura=640, movimento=False):
@@ -98,11 +99,6 @@ def test_nome_acessivel_dos_graficos(qtbot, tmp_path):
     assert graficos.accessibleName() == "Gráficos de seno, cosseno e tangente, de 0 a 360 graus"
 
 
-def _distancia(cor, hex_cor):
-    alvo = int(hex_cor[1:3], 16), int(hex_cor[3:5], 16), int(hex_cor[5:7], 16)
-    return sum(abs(a - b) for a, b in zip((cor.red(), cor.green(), cor.blue()), alvo))
-
-
 @pytest.mark.parametrize("tema", [LIGHT, DARK])
 def test_curvas_nas_cores_do_tema(qtbot, tmp_path, tema):
     window = _janela(qtbot, tmp_path)
@@ -115,7 +111,7 @@ def test_curvas_nas_cores_do_tema(qtbot, tmp_path, tema):
         centro = graficos.to_screen(graus, valor).toPoint()
         # Linhas tracejadas e pontilhadas têm vãos: procura num pequeno trecho em volta.
         cores = [imagem.pixelColor(centro + QPoint(dx, dy)) for dx in range(-5, 6) for dy in range(-2, 3)]
-        return min(_distancia(c, PALETTES[tema][chave]) for c in cores)
+        return min(distancia(c, PALETTES[tema][chave]) for c in cores)
 
     assert perto_da_curva(150, 0.5, "trig_sin") < 90         # seno em 150° (longe da marca)
     assert perto_da_curva(180, -1.0, "trig_cos") < 90        # cosseno em 180°
