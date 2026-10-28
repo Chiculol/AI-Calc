@@ -19,6 +19,12 @@ COS_UNDEFINED_THRESHOLD = 1e-12
 # vira esse inteiro (ex.: 30,000000000000004° vira 30°).
 ANGLE_SNAP_TOLERANCE = 1e-9
 
+# Ao arrastar o ponto no círculo, a menos disto (em graus) de um ângulo notável, encaixa nele.
+NOTABLE_SNAP_DEGREES = 2.0
+
+# Gráficos: a curva da tangente é cortada acima deste valor (em módulo).
+GRAPH_LIMIT = 2.0
+
 # Formatação do resultado.
 SIGNIFICANT_DIGITS = 12
 SCIENTIFIC_UPPER_EXPONENT = 12   # a partir de 10**12 usa notação científica

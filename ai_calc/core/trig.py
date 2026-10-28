@@ -14,7 +14,13 @@ from typing import NamedTuple
 
 from .errors import DomainError, UndefinedError
 from .formatting import format_number
-from .limits import ANGLE_SNAP_TOLERANCE, COS_UNDEFINED_THRESHOLD, TRIG_TOLERANCE
+from .limits import (
+    ANGLE_SNAP_TOLERANCE,
+    COS_UNDEFINED_THRESHOLD,
+    GRAPH_LIMIT,
+    NOTABLE_SNAP_DEGREES,
+    TRIG_TOLERANCE,
+)
 
 _SIN_AT = (0.0, 1.0, 0.0, -1.0)
 _COS_AT = (1.0, 0.0, -1.0, 0.0)
@@ -190,6 +196,74 @@ def periodicity_text(angle: float, mode: str = "DEG") -> str:
     if mode == "RAD":
         return f"Também vale: {radians_text(theta)} + 2π × k"
     return f"Também vale: {format_number(theta)}° + 360° × k"
+
+
+def nearest_notable(angle: float, tolerance: float = NOTABLE_SNAP_DEGREES) -> float:
+    """Encaixa no ângulo notável mais próximo, se estiver a menos de "tolerance" graus."""
+    theta = normalize_degrees(angle)
+    for notable in (*NOTABLE_ANGLES, 360):
+        if abs(theta - notable) < tolerance:
+            return normalize_degrees(notable)
+    return theta
+
+
+def angle_from_point(x: float, y: float) -> float | None:
+    """Ângulo (graus) do ponto (x, y) visto do centro do círculo, com y para cima.
+
+    None no centro exato, onde não há direção.
+    """
+    if x == 0 and y == 0:
+        return None
+    return normalize_degrees(math.degrees(math.atan2(y, x)))
+
+
+def angle_text(angle: float, mode: str = "DEG") -> str:
+    """Ângulo para mostrar: "30°" em DEG, "π/6" (ou "0,1745") em RAD."""
+    if mode == "RAD":
+        return radians_text(angle)
+    return f"{format_number(normalize_degrees(angle))}°"
+
+
+GraphSegment = list[tuple[float, float]]
+
+
+def graph_points(function: str, step: float = 1.0, limit: float = GRAPH_LIMIT) -> list[GraphSegment]:
+    """Pontos (graus, valor) de 0° a 360° para desenhar a curva, em trechos contínuos.
+
+    A tangente é interrompida nas assíntotas (90° e 270°) e cortada em ±limit: o trecho
+    termina (ou começa) exatamente na borda, para não desenhar linhas falsas.
+    """
+    functions = {"sin": sin, "cos": cos, "tan": tan}
+    if function not in functions:
+        raise ValueError(f"Função desconhecida: {function}")
+    segments: list[GraphSegment] = []
+    current: GraphSegment = []
+    outside: tuple[float, float] | None = None   # último ponto além da borda
+    steps = int(round(360 / step))
+    for index in range(steps + 1):
+        degrees = index * step
+        try:
+            value = functions[function](degrees, "DEG")
+        except UndefinedError:
+            if current:
+                segments.append(current)
+            current, outside = [], None
+            continue
+        if abs(value) > limit:
+            edge = (degrees, math.copysign(limit, value))
+            if current:
+                current.append(edge)
+                segments.append(current)
+                current = []
+            outside = edge
+            continue
+        if not current and outside is not None:
+            current.append(outside)
+        outside = None
+        current.append((degrees, value))
+    if current:
+        segments.append(current)
+    return segments
 
 
 class TrigCircleState:

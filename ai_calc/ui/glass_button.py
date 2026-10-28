@@ -92,11 +92,12 @@ class GlassButton(QPushButton):
             else:
                 self._animate(self._press_animation, self._press, 0.0, PRESS_OUT_MS)
 
-        fill_key, pressed_key, text_key, alpha, focus_key = ROLE_COLORS[self._role]
+        role = self._role if self.isEnabled() else "tab_disabled"
+        fill_key, pressed_key, text_key, alpha, focus_key = ROLE_COLORS[role]
         theme = self._theme
         fill = mix(theme.hex(fill_key), theme.hex(pressed_key), self._press)
-        hover = self._hover
-        if self._role == "equals":
+        hover = self._hover if self.isEnabled() else 0.0
+        if role == "equals":
             fill = mix(fill, theme.hex("equals_hover"), hover * (1 - self._press))
             hover = 0.0
 

@@ -155,11 +155,10 @@ def test_teclado_cabe_na_largura_minima(qtbot, janela):
         assert botao.geometry().right() <= janela.common_keypad.width()
 
 
-def test_aba_trigonometria_desativada(janela):
+def test_todas_as_abas_ativas(janela):
     assert janela.tabs.currentIndex() == 0
     assert janela.tabs.isTabEnabled(SCIENTIFIC_TAB)
-    assert not janela.tabs.isTabEnabled(TRIG_TAB)
-    assert "Em breve" in janela.tabs.tabText(TRIG_TAB)
+    assert janela.tabs.isTabEnabled(TRIG_TAB)
 
 
 def test_abas_cabem_na_largura_minima(qtbot, janela):

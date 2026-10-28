@@ -1,4 +1,4 @@
-# AI Calc: lista de conferência da Etapa 3
+# AI Calc: lista de conferência (Etapas 3 e 4)
 
 Marque cada item depois de testar. Abra o app com:
 
@@ -74,3 +74,23 @@ conta ou da primeira mudança de tema, modo ou aba.
 - [ ] Na confirmação, o foco começa em "Cancelar" e o Tab só circula entre os dois botões.
 - [ ] Com o Narrador do Windows (Ctrl + Win + Enter), as teclas e itens são lidos pelo nome
       (ex.: "Multiplicar", "sin(30) igual a 0,5, graus", "Limpar histórico").
+
+## 8. Trigonometria (Etapa 4)
+
+- [ ] A aba abre em 30°, sem o visor da calculadora e sem o painel fixo do histórico (o botão de
+      relógio continua abrindo a gaveta).
+- [ ] Arraste o ponto pelos quatro quadrantes: valores, sinais, quadrante e a marca nos gráficos
+      acompanham. Perto de 30°, 45°, 60°… ele encaixa; fora deles, fica em graus inteiros.
+- [ ] Clique no círculo e use as setas (Shift: 15°; Home: 0°).
+- [ ] Seno `0,5` + Enter → 30°; "Outra: 150°" → 150°. Seno `1` → 90°, botão "Solução única"
+      desativado e tangente "indefinida".
+- [ ] Ângulo `450` → 90°; `-30` → 330°. Seno `2` mostra o aviso vermelho dentro do painel.
+- [ ] DEG → RAD: campo mostra `π/6`, eixo dos gráficos mostra `π/2`, `π`, `3π/2`, `2π`.
+- [ ] Ao digitar um ângulo ou usar "Outra", o ponto desliza pelo caminho mais curto
+      (de 30° para 330° passa por 0°). Com "reduzir movimento", vai direto.
+- [ ] Gráficos: a tangente "quebra" em 90° e 270° (linhas tracejadas) e cada curva tem rótulo
+      e estilo de linha próprios.
+- [ ] Janela larga: círculo e gráficos lado a lado. Janela estreita (360 × 560): seletor
+      "Círculo | Gráficos" e tudo cabe.
+- [ ] Tab passa por seletor, círculo, campos e botões; o Narrador lê o círculo como
+      "Ângulo 30 graus, 1º quadrante, seno 0,5, …".

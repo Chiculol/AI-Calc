@@ -73,6 +73,9 @@ PALETTES: dict[str, dict[str, str]] = {
         "tooltip_bg": "#172033",
         "tooltip_text": "#FFFFFF",
         "scroll_handle": "#6F7B93",
+        "trig_sin": "#B0246A",
+        "trig_cos": "#1F5FAE",
+        "trig_tan": "#7A5600",
     },
     DARK: {
         "window_top": "#0B1530",
@@ -109,6 +112,9 @@ PALETTES: dict[str, dict[str, str]] = {
         "tooltip_bg": "#E8EEF8",
         "tooltip_text": "#0E1A33",
         "scroll_handle": "#9AA9CC",
+        "trig_sin": "#FF8AC4",
+        "trig_cos": "#82C2FF",
+        "trig_tan": "#F5C451",
     },
 }
 

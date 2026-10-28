@@ -21,9 +21,10 @@ Leia também `docs/ESPECIFICACAO.md`: ela tem todas as decisões já aprovadas
 | 3A | Janela, visor e teclado Comum (com teclado físico), visual simples | feita |
 | 3B | Teclado Científico, DEG/RAD e botão de tema (troca simples) | feita |
 | 3C | Transição suave do tema e visual de vidro | feita |
-| 3D | Histórico, preferências e lista de conferência final | feita (448 testes no total) |
-| 4 | Aba Trigonometria (círculo e gráficos) | **próxima** |
-| 5 | Acabamento, animações, README | pendente |
+| 3D | Histórico, preferências e lista de conferência final | feita |
+| 4A | Aba Trigonometria: círculo interativo, painel e campos | feita |
+| 4B | Gráficos, layout largo/estreito, animação do ponto, conferência | feita (546 testes no total) |
+| 5 | Acabamento (liga/desliga de cada função, ajustes finais) | **próxima** |
 
 Comandos (da raiz do projeto): `pip install -r requirements.txt`, `pytest` e `python -m ai_calc` (abre o app).
 Os testes de janela usam pytest-qt em modo offscreen (`tests/conftest.py`).
@@ -92,6 +93,33 @@ Atenção: o PySide6 não carrega se o caminho do ambiente virtual for longo dem
 - `ui/app.py`: `build_window(pasta)` liga tudo; dados em `QStandardPaths.AppDataLocation`
   (`%APPDATA%/AI Calc`). O tema salvo pelo botão vale sobre o do Windows.
 - Lista de conferência manual: `docs/LISTA_DE_CONFERENCIA.md`.
+
+## Etapa 4A (feita)
+
+- Motor: `trig.nearest_notable` (encaixe a menos de 2°, `NOTABLE_SNAP_DEGREES`), `trig.angle_from_point`,
+  `trig.angle_text`; `core/trig_input.py` (`angle_from_text`, `sine_from_text` usando o motor, e
+  `describe` para leitor de tela). Fica fora de `trig.py` para não criar importação circular.
+- `ui/trig_circle.py` (`TrigCircleWidget`): mouse (clicar/arrastar, com encaixe), setas (1°, Shift 15°),
+  Home (0°). Seno contínuo, cosseno tracejado, tangente pontilhada; cores `trig_sin/cos/tan` na paleta.
+- `ui/trig_page.py`: `InfoCard` (ângulo em graus e radianos, quadrante, valores com sinal,
+  "Também vale" e aviso de erro dos campos) e campos `GlassField` (`ui/glass_field.py`) "Ângulo" e
+  "Seno", botão DEG/RAD (sincronizado com o Científico) e "Outra: 150°" (desativado em seno ±1).
+- Na aba Trigonometria: visor escondido, painel fixo do histórico escondido (gaveta continua),
+  teclas físicas não vão para a conta. Abre em 30°; o ângulo não é salvo; a última aba é.
+- Testes de janela: não usar `QTest.keyClicks` com "π" (fecha o processo no Windows); usar "pi".
+- Botões desativados agora são desenhados com as cores de `tab_disabled`.
+
+## Etapa 4B (feita)
+
+- `trig.graph_points(função)`: trechos (graus, valor) de 0° a 360°; tangente quebrada em 90°/270° e
+  cortada em ±`GRAPH_LIMIT` (2), começando/terminando na borda.
+- `ui/trig_graphs.py` (`TrigGraphsWidget`): grade, rótulos do eixo em DEG ou RAD, assíntotas,
+  marca do ângulo e legenda (amostra da linha + nome).
+- `TrigPage`: largura ≥ `WIDE_MIN_WIDTH` (600) põe círculo e gráficos lado a lado; abaixo, seletor
+  `view_tabs` "Círculo | Gráficos". O ponto desliza `POINT_MS` (300 ms) pelo caminho mais curto ao
+  digitar ou trocar a solução (`shown_angle` do círculo e `marker` dos gráficos); mouse e setas
+  movem na hora e interrompem a animação. Ângulos escolhidos com o mouse ficam em graus inteiros.
+- README com imagens da aba; lista de conferência ganhou a seção 8 (Trigonometria).
 
 ## Interface (Etapas 3 e 4)
 

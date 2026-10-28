@@ -279,8 +279,10 @@ def test_clique_sem_animacao_quando_reduzir_movimento(qtbot):
     qtbot.mouseRelease(tecla, Qt.MouseButton.LeftButton)
 
 
-def test_aba_trigonometria_texto_curto_e_nome_completo(janela):
-    from ai_calc.ui.main_window import TRIG_TAB
+def test_aba_trigonometria_cabe_com_o_nome_inteiro(qtbot, janela):
+    from ai_calc.ui.main_window import MIN_HEIGHT, MIN_WIDTH, TRIG_TAB
 
-    assert janela.tabs.tabText(TRIG_TAB) == "Trig. · Em breve"
-    assert janela.tabs.accessibleTabName(TRIG_TAB) == "Trigonometria, em breve"
+    assert janela.tabs.tabText(TRIG_TAB) == "Trigonometria"
+    janela.resize(MIN_WIDTH, MIN_HEIGHT)
+    qtbot.wait(20)
+    assert janela.tabs.sizeHint().width() <= janela.tabs.width()

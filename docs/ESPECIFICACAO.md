@@ -152,3 +152,17 @@ Funções exigem parênteses (`sin 30` mostra "Use parênteses: sin(30)").
 - Etapa 3D: preferência com valor desconhecido é ignorada (vale o padrão); só JSON inválido ou
   formato errado conta como arquivo corrompido.
 - Etapa 3D: o tema só é salvo quando o usuário usa o botão; sem isso, o app segue o Windows.
+- Etapa 4A: no círculo, o seno aparece como "sen" (forma usada na escola), embora a tecla da
+  calculadora continue "sin".
+- Etapa 4A: o campo "Ângulo" aceita contas e vale no modo atual (em RAD, "π/6" é 30°); o campo "Seno"
+  aceita contas como "1/2" ou "√3/2". Os campos são aplicados com Enter ou ao sair deles.
+- Etapa 4A: o botão de outra solução mostra para onde leva ("Outra: 150°"); em seno ±1 vira
+  "Solução única", desativado.
+- Etapa 4A: setas → e ↑ aumentam o ângulo; ← e ↓ diminuem; Shift muda de 15 em 15; Home volta a 0°.
+- Etapa 4A: a última aba aberta (inclusive Trigonometria) é lembrada.
+- Etapa 4B: gráficos de y = −2 a 2; a tangente é cortada nas bordas e interrompida nas assíntotas.
+- Etapa 4B: círculo e gráficos lado a lado quando a área da aba tem 600 px ou mais; abaixo disso,
+  seletor "Círculo | Gráficos" (começa no Círculo).
+- Etapa 4B: ao digitar um ângulo ou trocar a solução, o ponto desliza em 300 ms pelo caminho mais
+  curto; os números do painel mudam na hora. Mouse e setas movem sem animação.
+- Etapa 4B: ângulo escolhido com o mouse fica em grau inteiro (ou no notável, se estiver perto).

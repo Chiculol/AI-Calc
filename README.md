@@ -1,8 +1,8 @@
 # AI Calc
 
 Calculadora desktop em Python e PySide6, toda em português do Brasil, com visual de
-"vidro líquido", tema claro e escuro e histórico das contas. O motor de cálculo é próprio:
-nada de `eval()`.
+"vidro líquido", tema claro e escuro, histórico das contas e um **círculo trigonométrico
+interativo** com gráficos. O motor de cálculo é próprio: nada de `eval()`.
 
 Projeto feito durante uma imersão da Alura em engenharia de software com IA, construído em
 etapas pequenas, cada uma com testes automáticos.
@@ -25,6 +25,23 @@ etapas pequenas, cada uma com testes automáticos.
 - Mensagens de erro em português ("Divisão por zero inválida", "Expressão incompleta"...).
   O app nunca fecha por causa de uma conta.
 - Funciona pelo teclado físico: `12*3-6/2` e Enter.
+
+**Trigonometria**
+- Círculo trigonométrico interativo: arraste o ponto, clique no círculo ou use as setas
+  (Shift anda de 15° em 15°). Perto de 30°, 45°, 60°… o ponto encaixa no ângulo notável.
+- Seno, cosseno e tangente desenhados no círculo e nos gráficos de 0° a 360°, cada um com cor,
+  rótulo e estilo de linha próprios (contínua, tracejada e pontilhada).
+- Painel com o ângulo em graus e radianos (`135° = 3π/4 rad`), o quadrante, os valores com sinal
+  e "Também vale: θ + 360° × k".
+- Campos "Ângulo" (aceita contas como `450`, `-30` ou `π/6`) e "Seno": seno `0,5` leva a 30°, e o
+  botão "Outra: 150°" mostra a outra solução (desativado em seno 1 ou −1, que só têm uma).
+- Janela larga: círculo e gráficos lado a lado. Janela estreita: seletor "Círculo | Gráficos".
+- O ponto desliza até o novo ângulo; com "reduzir movimento", vai direto.
+
+<p align="center">
+  <img src="docs/imagens/claro-trigonometria.png" alt="Aba Trigonometria no tema claro: círculo em 30 graus e gráficos lado a lado" width="49%">
+  <img src="docs/imagens/escuro-trigonometria.png" alt="Aba Trigonometria no tema escuro: círculo em 135 graus e gráficos lado a lado" width="49%">
+</p>
 
 **Visual**
 - Teclas, visor, abas e painéis de vidro semitransparente com brilho e borda, sobre um fundo
@@ -81,10 +98,11 @@ O histórico e as preferências ficam em `%APPDATA%\AI Calc`.
 pytest
 ```
 
-São 448 testes. Eles cobrem o motor de cálculo, o círculo trigonométrico, o histórico e as
+São 546 testes. Eles cobrem o motor de cálculo, o círculo trigonométrico, o histórico e as
 preferências, além da janela (com [pytest-qt](https://pytest-qt.readthedocs.io/), em modo
 offscreen, sem abrir nada na tela). Os testes de janela clicam nas teclas, usam o teclado,
-trocam o tema no meio da transição e conferem as cores de cada elemento.
+arrastam o ponto do círculo, trocam o tema no meio da transição e conferem as cores de cada
+elemento.
 
 Para conferir à mão, veja a [lista de conferência](docs/LISTA_DE_CONFERENCIA.md), que inclui
 como simular um arquivo corrompido e o "reduzir movimento".
@@ -97,13 +115,14 @@ ai_calc/
 │   ├── tokenizer.py, parser.py, evaluator.py   leitura e cálculo das contas
 │   ├── calculator.py, formatting.py, errors.py resultado, formatação pt-BR e erros
 │   ├── editor.py                                o que cada tecla faz
-│   ├── trig.py                                  funções e círculo trigonométrico
+│   ├── trig.py, trig_input.py                   funções, círculo, gráficos e campos da trigonometria
 │   └── history.py, preferences.py, storage.py   histórico, preferências e gravação segura
 └── ui/            interface PySide6
     ├── main_window.py, app.py                   janela e inicialização
     ├── theme.py, system.py                      paletas, transição e "reduzir movimento"
     ├── glass.py, glass_button.py, tabs.py       desenho do vidro, teclas e abas
-    └── display.py, keypad.py, history_panel.py, confirm_dialog.py
+    ├── trig_page.py, trig_circle.py, trig_graphs.py   aba Trigonometria
+    └── display.py, keypad.py, glass_field.py, history_panel.py, confirm_dialog.py
 ```
 
 As decisões de comportamento (porcentagem, fatorial, erros, precedência...) estão em
@@ -116,5 +135,5 @@ As decisões de comportamento (porcentagem, fatorial, erros, precedência...) es
 | 1 | Motor de cálculo e testes | ✅ |
 | 2 | Lógica do círculo trigonométrico | ✅ |
 | 3 | Interface Comum e Científica, tema claro/escuro, vidro, histórico e preferências | ✅ |
-| 4 | Aba Trigonometria: círculo interativo e gráficos | próxima |
-| 5 | Acabamento e animações | planejada |
+| 4 | Aba Trigonometria: círculo interativo e gráficos | ✅ |
+| 5 | Acabamento: mostrar/esconder cada função, animações e ajustes finais | próxima |

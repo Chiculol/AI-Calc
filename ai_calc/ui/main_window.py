@@ -31,6 +31,7 @@ from .keypad import (
 )
 from .tabs import GlassTabBar
 from .theme import LIGHT, ThemeManager
+from .trig_page import TrigPage
 
 MIN_WIDTH = 360
 MIN_HEIGHT = 560
@@ -39,7 +40,7 @@ START_SIZE = (700, 640)
 COMMON_TAB = 0
 SCIENTIFIC_TAB = 1
 TRIG_TAB = 2
-TAB_NAMES = {COMMON_TAB: "comum", SCIENTIFIC_TAB: "cientifica"}
+TAB_NAMES = {COMMON_TAB: "comum", SCIENTIFIC_TAB: "cientifica", TRIG_TAB: "trigonometria"}
 
 # Histórico: painel fixo ao lado quando a janela é larga; gaveta com botão quando é estreita.
 DOCK_MIN_WIDTH = 660
@@ -77,10 +78,7 @@ class MainWindow(QMainWindow):
         self.tabs.setAccessibleName("Modo da calculadora")
         self.tabs.addTab("Comum")
         self.tabs.addTab("Científica")
-        self.tabs.addTab("Trig. · Em breve")
-        self.tabs.setTabEnabled(TRIG_TAB, False)
-        self.tabs.setTabToolTip(TRIG_TAB, "Trigonometria: em breve")
-        self.tabs.setAccessibleTabName(TRIG_TAB, "Trigonometria, em breve")
+        self.tabs.addTab("Trigonometria")
 
         self.history_button = HistoryToggleButton(self.theme, self)
         self.history_button.clicked.connect(self.toggle_history_drawer)
@@ -99,9 +97,13 @@ class MainWindow(QMainWindow):
             keypad.inserted.connect(self.insert)
             keypad.action.connect(self.run_action)
 
+        self.trig_page = TrigPage(self.theme, self)
+        self.trig_page.mode_toggle_requested.connect(lambda: self.run_action(ANGLE_MODE))
+
         self.pages = QStackedWidget(self)
         self.pages.addWidget(self.common_keypad)
         self.pages.addWidget(self.scientific_keypad)
+        self.pages.addWidget(self.trig_page)
         self.tabs.currentChanged.connect(self._tab_changed)
 
         # --- montagem ---
@@ -142,8 +144,9 @@ class MainWindow(QMainWindow):
 
         # --- preferências salvas ---
         self.set_angle_mode(self.preferences.angle_mode, save=False)
-        if self.preferences.last_tab == TAB_NAMES[SCIENTIFIC_TAB]:
-            self.tabs.setCurrentIndex(SCIENTIFIC_TAB)
+        for index, name in TAB_NAMES.items():
+            if self.preferences.last_tab == name:
+                self.tabs.setCurrentIndex(index)
 
         self.theme.apply()
         self._update_history_layout()
@@ -183,6 +186,7 @@ class MainWindow(QMainWindow):
         name = "graus" if mode == "DEG" else "radianos"
         self.scientific_keypad.set_key_text(ANGLE_MODE, mode, f"Modo de ângulo: {name}")
         self.display.show_angle_mode(mode)
+        self.trig_page.set_mode(mode)
         if save:
             self.preferences.update(angle_mode=mode)
 
@@ -192,6 +196,10 @@ class MainWindow(QMainWindow):
 
     def _tab_changed(self, index: int) -> None:
         self.pages.setCurrentIndex(index)
+        # A aba Trigonometria não usa o visor e dá o espaço do histórico ao círculo
+        # (o histórico continua na gaveta, pelo botão de relógio).
+        self.display.setVisible(index != TRIG_TAB)
+        self._update_history_layout()
         if index in TAB_NAMES:
             self.preferences.update(last_tab=TAB_NAMES[index])
 
@@ -291,7 +299,9 @@ class MainWindow(QMainWindow):
         return rect
 
     def _update_history_layout(self) -> None:
-        docked = self.width() >= DOCK_MIN_WIDTH
+        if not hasattr(self, "_root"):
+            return                       # ainda montando a janela
+        docked = self.width() >= DOCK_MIN_WIDTH and self.tabs.currentIndex() != TRIG_TAB
         panel = self.history_panel
         if docked and not self._docked:
             self._drawer_animation.stop()
@@ -332,6 +342,10 @@ class MainWindow(QMainWindow):
 
         if key == Qt.Key.Key_Escape and self._drawer_open:
             self.close_history_drawer()
+        elif self.tabs.currentIndex() == TRIG_TAB:
+            # Na Trigonometria as teclas não vão para a conta escondida.
+            super().keyPressEvent(event)
+            return
         elif key in (Qt.Key.Key_Return, Qt.Key.Key_Enter, Qt.Key.Key_Equal):
             self._press_action(EVALUATE)
         elif key == Qt.Key.Key_Backspace:

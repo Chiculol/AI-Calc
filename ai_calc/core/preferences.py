@@ -9,7 +9,7 @@ from .storage import load_or_quarantine, write_json_atomic
 FORMAT_VERSION = 1
 THEMES = ("claro", "escuro")
 ANGLE_MODES = ("DEG", "RAD")
-TABS = ("comum", "cientifica")
+TABS = ("comum", "cientifica", "trigonometria")
 
 
 def _validate(data: object) -> dict:
