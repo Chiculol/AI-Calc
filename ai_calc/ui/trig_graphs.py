@@ -7,7 +7,7 @@ from PySide6.QtGui import QFont, QPainter, QPainterPath, QPen
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from ..core.limits import GRAPH_LIMIT
-from ..core.trig import circle_values, graph_points, normalize_degrees, radians_text
+from ..core.trig import TRIG_FUNCTIONS, circle_values, graph_points, normalize_degrees, radians_text
 from .glass import paint_glass, with_alpha
 from .theme import DISPLAY_ALPHA, ThemeManager
 from .trig_circle import FUNCTION_STYLES, function_pen
@@ -26,6 +26,7 @@ class TrigGraphsWidget(QWidget):
         self._theme = theme
         self.mode = "DEG"
         self.marker = 30.0
+        self.visible: frozenset[str] = frozenset(TRIG_FUNCTIONS)
         self._segments = {name: graph_points(name) for name in ("sin", "cos", "tan")}
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumSize(200, 160)
@@ -34,6 +35,10 @@ class TrigGraphsWidget(QWidget):
 
     def sizeHint(self) -> QSize:  # noqa: N802 (nome do Qt)
         return QSize(320, 260)
+
+    def set_visible(self, visible: frozenset[str]) -> None:
+        self.visible = frozenset(visible)
+        self.update()
 
     def set_marker(self, angle: float) -> None:
         self.marker = normalize_degrees(angle)
@@ -86,14 +91,14 @@ class TrigGraphsWidget(QWidget):
         # Assíntotas da tangente (90° e 270°).
         tan_color = theme.color(FUNCTION_STYLES["tan"][0])
         painter.setPen(QPen(with_alpha(tan_color, 0.45), 1, Qt.PenStyle.DashLine))
-        for degrees in (90, 270):
+        for degrees in (90, 270) if "tan" in self.visible else ():
             x = self.to_screen(degrees, 0).x()
             painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
 
         # Curvas.
         painter.save()
         painter.setClipRect(plot.adjusted(-2, -2, 2, 2))
-        for name in ("cos", "tan", "sin"):
+        for name in [n for n in ("cos", "tan", "sin") if n in self.visible]:
             painter.setPen(function_pen(theme, name, 2.2))
             for segment in self._segments[name]:
                 path = QPainterPath(self.to_screen(*segment[0]))
@@ -107,7 +112,7 @@ class TrigGraphsWidget(QWidget):
         painter.setPen(QPen(theme.color("text"), 1.5))
         painter.drawLine(QPointF(x, plot.top()), QPointF(x, plot.bottom()))
         for name, value in zip(("sin", "cos", "tan"), circle_values(self.marker)):
-            if value is None or abs(value) > GRAPH_LIMIT:
+            if name not in self.visible or value is None or abs(value) > GRAPH_LIMIT:
                 continue
             painter.setPen(QPen(theme.color("display_bg"), 1.5))
             painter.setBrush(theme.color(FUNCTION_STYLES[name][0]))
@@ -123,7 +128,7 @@ class TrigGraphsWidget(QWidget):
         painter.setFont(font)
         x = plot.left()
         y = 8
-        for name in ("sin", "cos", "tan"):
+        for name in [n for n in ("sin", "cos", "tan") if n in self.visible]:
             key, _, label = FUNCTION_STYLES[name]
             painter.setPen(function_pen(self._theme, name, 2.2))
             painter.drawLine(QPointF(x, y + 8), QPointF(x + 20, y + 8))

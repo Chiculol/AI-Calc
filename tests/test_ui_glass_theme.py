@@ -170,6 +170,8 @@ def janela(qtbot):
     window.show()
     qtbot.waitExposed(window)
     window.tabs.setCurrentIndex(SCIENTIFIC_TAB)
+    # Espera o esmaecimento da troca de aba terminar antes de fotografar a janela.
+    qtbot.waitUntil(lambda: window.pages.currentWidget().graphicsEffect() is None, timeout=2000)
     return window
 
 

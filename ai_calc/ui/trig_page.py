@@ -8,11 +8,19 @@ from PySide6.QtWidgets import QFrame, QGridLayout, QHBoxLayout, QLabel, QVBoxLay
 
 from ..core.errors import CalcError
 from ..core.formatting import format_number
-from ..core.trig import TrigCircleState, angle_text, normalize_degrees, radians_text
+from ..core.trig import (
+    TRIG_FUNCTIONS,
+    TrigCircleState,
+    angle_text,
+    normalize_degrees,
+    radians_text,
+    toggle_visible,
+)
 from ..core.trig_input import angle_from_text, sine_from_text
 from .glass import paint_glass, set_text_color
 from .glass_button import GlassButton
 from .glass_field import GlassField
+from .motion import fade_in
 from .tabs import GlassTabBar
 from .theme import DISPLAY_ALPHA, ThemeManager
 from .trig_circle import FUNCTION_STYLES, TrigCircleWidget, function_pen
@@ -22,6 +30,7 @@ START_ANGLE = 30.0
 WIDE_MIN_WIDTH = 600    # a partir daqui, círculo e gráficos ficam lado a lado
 POINT_MS = 300          # animação do ponto ao digitar um ângulo ou trocar a solução
 CIRCLE_VIEW, GRAPHS_VIEW = 0, 1
+FUNCTION_NAMES = {"sin": "seno", "cos": "cosseno", "tan": "tangente"}
 SIGN_NAMES = {"+": "positivo", "-": "negativo", "0": "zero", "indefinida": "indefinida"}
 
 
@@ -49,6 +58,43 @@ class LineSample(QWidget):
         painter.drawLine(QPointF(2, y), QPointF(self.width() - 2, y))
 
 
+class FunctionToggle(GlassButton):
+    """Liga/desliga de uma função: amostra da linha + nome; riscado quando desligada."""
+
+    def __init__(self, theme: ThemeManager, name: str, parent: QWidget | None = None) -> None:
+        super().__init__(FUNCTION_STYLES[name][2], theme, role="digit", small=True, parent=parent)
+        self.name = name
+        self.setCheckable(True)
+        self.setChecked(True)
+        self.setFixedSize(60, 34)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.toggled.connect(lambda _: self._describe())
+        self._describe()
+
+    def _describe(self) -> None:
+        verb = "Esconder" if self.isChecked() else "Mostrar"
+        self.setAccessibleName(f"Mostrar {FUNCTION_NAMES[self.name]}")
+        self.setToolTip(f"{verb} {FUNCTION_NAMES[self.name]} no círculo, nos gráficos e no painel")
+
+    def paint_content(self, painter: QPainter, rect: QRectF, color) -> None:
+        theme = self._theme
+        on = self.isChecked()
+        x = rect.left() + 10
+        y = rect.center().y()
+        pen = function_pen(theme, self.name, 2.2)
+        if not on:
+            pen.setColor(theme.color("text_muted"))
+        painter.setPen(pen)
+        painter.drawLine(QPointF(x, y), QPointF(x + 16, y))
+        font = QFont(self.font())
+        font.setBold(on)
+        font.setStrikeOut(not on)
+        painter.setFont(font)
+        painter.setPen(theme.color(FUNCTION_STYLES[self.name][0]) if on else theme.color("text_muted"))
+        painter.drawText(QRectF(x + 20, rect.top(), rect.width() - 30, rect.height()),
+                         Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter, self.text())
+
+
 class InfoCard(QFrame):
     """Ângulo em graus e radianos, quadrante, valores com sinal e "Também vale"."""
 
@@ -73,6 +119,7 @@ class InfoCard(QFrame):
         self.name_labels: dict[str, QLabel] = {}
         self.value_labels: dict[str, QLabel] = {}
         self.sign_labels: dict[str, QLabel] = {}
+        self.samples: dict[str, LineSample] = {}
         for row, name in enumerate(("sin", "cos", "tan")):
             sample = LineSample(theme, name, self)
             title = QLabel(f"{FUNCTION_STYLES[name][2]} θ", self)
@@ -92,6 +139,7 @@ class InfoCard(QFrame):
             self.name_labels[name] = title
             self.value_labels[name] = value
             self.sign_labels[name] = sign
+            self.samples[name] = sample
         grid.setColumnStretch(2, 1)
 
         self.period_label = QLabel(self)
@@ -114,6 +162,12 @@ class InfoCard(QFrame):
 
         theme.changed.connect(self.apply_colors)
         self.apply_colors()
+
+    def set_visible(self, visible: frozenset[str]) -> None:
+        for name in TRIG_FUNCTIONS:
+            for widget in (self.samples[name], self.name_labels[name],
+                           self.value_labels[name], self.sign_labels[name]):
+                widget.setVisible(name in visible)
 
     def show_state(self, state: TrigCircleState, mode: str) -> None:
         degrees = f"{format_number(state.angle)}°"
@@ -148,6 +202,7 @@ class InfoCard(QFrame):
 
 class TrigPage(QWidget):
     mode_toggle_requested = Signal()     # o botão DEG/RAD desta aba foi apertado
+    visible_changed = Signal(tuple)      # funções visíveis mudaram (para salvar)
 
     def __init__(self, theme: ThemeManager, parent: QWidget | None = None) -> None:
         super().__init__(parent)
@@ -164,7 +219,24 @@ class TrigPage(QWidget):
         self.view_tabs.setAccessibleName("Mostrar círculo ou gráficos")
         self.view_tabs.addTab("Círculo")
         self.view_tabs.addTab("Gráficos")
-        self.view_tabs.currentChanged.connect(lambda _: self._apply_layout())
+        self.view_tabs.currentChanged.connect(lambda _: self._switch_view())
+
+        # Liga/desliga de seno, cosseno e tangente (vale para círculo, gráficos e painel).
+        self.visible: frozenset[str] = frozenset(TRIG_FUNCTIONS)
+        self.toggles = {name: FunctionToggle(theme, name, self) for name in TRIG_FUNCTIONS}
+        for toggle in self.toggles.values():
+            toggle.clicked.connect(lambda _=False, n=toggle.name: self.toggle_function(n))
+        self.top_bar = QWidget(self)
+        top = QHBoxLayout(self.top_bar)
+        top.setContentsMargins(0, 0, 0, 0)
+        top.setSpacing(6)
+        top.addWidget(self.view_tabs, 1)
+        top.addStretch(0)      # na janela larga (sem o seletor), empurra os botões para a direita
+        for toggle in self.toggles.values():
+            top.addWidget(toggle)
+        self.view_tabs.setParent(self.top_bar)
+        for toggle in self.toggles.values():
+            toggle.setParent(self.top_bar)
 
         self._animation = QVariantAnimation(self)
         self._animation.setDuration(POINT_MS)
@@ -210,6 +282,12 @@ class TrigPage(QWidget):
         self._grid.setSpacing(8)
         self._wide: bool | None = None
         self._apply_layout()
+
+        # Ordem do Tab = ordem de leitura: seletor, sen/cos/tan, círculo, campos e botões.
+        order = [self.view_tabs, *self.toggles.values(), self.circle, self.angle_field.edit,
+                 self.mode_button, self.sine_field.edit, self.toggle_button]
+        for first, second in zip(order, order[1:]):
+            QWidget.setTabOrder(first, second)
         self.refresh()
 
     # --- layout ---
@@ -220,25 +298,25 @@ class TrigPage(QWidget):
     def _apply_layout(self) -> None:
         wide = self.width() >= WIDE_MIN_WIDTH
         grid = self._grid
-        for widget in (self.view_tabs, self.circle, self.graphs, self.controls):
+        for widget in (self.top_bar, self.circle, self.graphs, self.controls):
             grid.removeWidget(widget)
         for index in range(3):
             grid.setRowStretch(index, 0)
             grid.setColumnStretch(index, 0)
+        grid.addWidget(self.top_bar, 0, 0, 1, 2 if wide else 1)
         if wide:
             self.view_tabs.hide()
             self.circle.show()
             self.graphs.show()
-            grid.addWidget(self.circle, 0, 0)
-            grid.addWidget(self.controls, 1, 0)
-            grid.addWidget(self.graphs, 0, 1, 2, 1)
-            grid.setRowStretch(0, 1)
+            grid.addWidget(self.circle, 1, 0)
+            grid.addWidget(self.controls, 2, 0)
+            grid.addWidget(self.graphs, 1, 1, 2, 1)
+            grid.setRowStretch(1, 1)
             grid.setColumnStretch(0, 1)
             grid.setColumnStretch(1, 1)
         else:
             show_graphs = self.view_tabs.currentIndex() == GRAPHS_VIEW
             self.view_tabs.show()
-            grid.addWidget(self.view_tabs, 0, 0)
             grid.addWidget(self.circle, 1, 0)
             grid.addWidget(self.graphs, 1, 0)
             self.circle.setVisible(not show_graphs)
@@ -248,10 +326,35 @@ class TrigPage(QWidget):
             grid.setColumnStretch(0, 1)
         self._wide = wide
 
+    def _switch_view(self) -> None:
+        self._apply_layout()
+        if not self.wide:
+            shown = self.graphs if self.view_tabs.currentIndex() == GRAPHS_VIEW else self.circle
+            fade_in(shown, self._theme)
+
     def resizeEvent(self, event) -> None:  # noqa: N802 (nome do Qt)
         super().resizeEvent(event)
         if (self.width() >= WIDE_MIN_WIDTH) != self._wide:
             self._apply_layout()
+
+    # --- funções visíveis ---
+    def set_visible_functions(self, names) -> None:
+        visible = frozenset(name for name in names if name in TRIG_FUNCTIONS) or frozenset(TRIG_FUNCTIONS)
+        self.visible = visible
+        self.circle.set_visible(visible)
+        self.graphs.set_visible(visible)
+        self.info.set_visible(visible)
+        for name, toggle in self.toggles.items():
+            toggle.setChecked(name in visible)
+            # A última função ligada não pode ser desligada.
+            alone = visible == {name}
+            toggle.setEnabled(not alone)
+            if alone:
+                toggle.setToolTip("Pelo menos uma função fica visível")
+
+    def toggle_function(self, name: str) -> None:
+        self.set_visible_functions(toggle_visible(self.visible, name))
+        self.visible_changed.emit(tuple(n for n in TRIG_FUNCTIONS if n in self.visible))
 
     # --- modo DEG/RAD ---
     def set_mode(self, mode: str) -> None:

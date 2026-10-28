@@ -10,6 +10,7 @@ FORMAT_VERSION = 1
 THEMES = ("claro", "escuro")
 ANGLE_MODES = ("DEG", "RAD")
 TABS = ("comum", "cientifica", "trigonometria")
+FUNCTIONS = ("sin", "cos", "tan")
 
 
 def _validate(data: object) -> dict:
@@ -26,6 +27,7 @@ class Preferences:
         self.theme: str | None = None     # None = seguir o tema do Windows
         self.angle_mode = "DEG"
         self.last_tab = "comum"
+        self.visible_functions: tuple[str, ...] = FUNCTIONS   # aba Trigonometria
         data = load_or_quarantine(path, _validate) if path is not None else None
         if data:
             if data.get("tema") in THEMES:
@@ -34,6 +36,9 @@ class Preferences:
                 self.angle_mode = data["modo_angulo"]
             if data.get("ultima_aba") in TABS:
                 self.last_tab = data["ultima_aba"]
+            shown = data.get("funcoes_visiveis")
+            if isinstance(shown, list) and shown and all(name in FUNCTIONS for name in shown):
+                self.visible_functions = tuple(name for name in FUNCTIONS if name in shown)
 
     def update(self, **changes) -> None:
         """Muda e salva. Ex.: update(theme="escuro")."""
@@ -53,5 +58,6 @@ class Preferences:
                 "tema": self.theme,
                 "modo_angulo": self.angle_mode,
                 "ultima_aba": self.last_tab,
+                "funcoes_visiveis": list(self.visible_functions),
             },
         )

@@ -112,8 +112,8 @@ PALETTES: dict[str, dict[str, str]] = {
         "tooltip_bg": "#E8EEF8",
         "tooltip_text": "#0E1A33",
         "scroll_handle": "#9AA9CC",
-        "trig_sin": "#FF8AC4",
-        "trig_cos": "#82C2FF",
+        "trig_sin": "#FFB3D9",
+        "trig_cos": "#A8D6FF",
         "trig_tan": "#F5C451",
     },
 }
