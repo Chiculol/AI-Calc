@@ -20,6 +20,7 @@ from .display import Display
 from .glass import Backdrop
 from .glass_button import HistoryToggleButton, ThemeToggleButton
 from .history_panel import HistoryPanel
+from .motion import fade_in
 from .keypad import (
     ANGLE_MODE,
     BACKSPACE,
@@ -99,6 +100,8 @@ class MainWindow(QMainWindow):
 
         self.trig_page = TrigPage(self.theme, self)
         self.trig_page.mode_toggle_requested.connect(lambda: self.run_action(ANGLE_MODE))
+        self.trig_page.set_visible_functions(self.preferences.visible_functions)
+        self.trig_page.visible_changed.connect(lambda names: self.preferences.update(visible_functions=names))
 
         self.pages = QStackedWidget(self)
         self.pages.addWidget(self.common_keypad)
@@ -177,6 +180,8 @@ class MainWindow(QMainWindow):
         elif action == EVALUATE:
             if self.editor.evaluate(self.angle_mode):
                 self._remember(self.editor.last_outcome)
+                self._refresh()
+                fade_in(self.display.result_label, self.theme)
         elif action == ANGLE_MODE:
             self.set_angle_mode("RAD" if self.angle_mode == "DEG" else "DEG")
         self._refresh()
@@ -196,6 +201,7 @@ class MainWindow(QMainWindow):
 
     def _tab_changed(self, index: int) -> None:
         self.pages.setCurrentIndex(index)
+        fade_in(self.pages.currentWidget(), self.theme)
         # A aba Trigonometria não usa o visor e dá o espaço do histórico ao círculo
         # (o histórico continua na gaveta, pelo botão de relógio).
         self.display.setVisible(index != TRIG_TAB)

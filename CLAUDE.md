@@ -23,13 +23,16 @@ Leia também `docs/ESPECIFICACAO.md`: ela tem todas as decisões já aprovadas
 | 3C | Transição suave do tema e visual de vidro | feita |
 | 3D | Histórico, preferências e lista de conferência final | feita |
 | 4A | Aba Trigonometria: círculo interativo, painel e campos | feita |
-| 4B | Gráficos, layout largo/estreito, animação do ponto, conferência | feita (546 testes no total) |
-| 5 | Acabamento (liga/desliga de cada função, ajustes finais) | **próxima** |
+| 4B | Gráficos, layout largo/estreito, animação do ponto, conferência | feita |
+| 5A | Liga/desliga das funções, ajustes visuais, transições, ícone, licença | feita (576 testes no total) |
+| 5B | Executável (PyInstaller) em Release no GitHub, revisão final, docs | **próxima** |
 
 Comandos (da raiz do projeto): `pip install -r requirements.txt`, `pytest` e `python -m ai_calc` (abre o app).
 Os testes de janela usam pytest-qt em modo offscreen (`tests/conftest.py`).
-Atenção: o PySide6 não carrega se o caminho do ambiente virtual for longo demais
-(limite do Windows); o ambiente atual fica em `C:/Users/fcoau/.venvs/ai_calc`.
+Ambiente virtual: `.venv` na raiz do projeto (ignorado pelo git). Atenção: o PySide6 não
+carrega se o caminho do ambiente for longo demais (limite do Windows); por isso o projeto
+fica numa pasta de caminho curto (`C:\Projetos\AI-Calc`).
+Rodar com `.venv\Scripts\python -m ai_calc` e `.venv\Scripts\python -m pytest`.
 
 ## Regras de arquitetura
 
@@ -120,6 +123,19 @@ Atenção: o PySide6 não carrega se o caminho do ambiente virtual for longo dem
   digitar ou trocar a solução (`shown_angle` do círculo e `marker` dos gráficos); mouse e setas
   movem na hora e interrompem a animação. Ângulos escolhidos com o mouse ficam em graus inteiros.
 - README com imagens da aba; lista de conferência ganhou a seção 8 (Trigonometria).
+
+## Etapa 5A (feita)
+
+- Projeto em `C:\Projetos\AI-Calc` (clone do GitHub), trabalho em branches (`etapa-5a-acabamento`).
+- `trig.toggle_visible` (a última função visível não desliga) e `Preferences.visible_functions`
+  (`funcoes_visiveis` no JSON). `TrigPage`: botões `FunctionToggle` sen/cos/tan no topo da aba,
+  aplicados ao círculo, aos gráficos e ao painel (`set_visible`).
+- Número do quadrante se afasta do raio (`_quadrant_spot`, `QUADRANT_LABEL_GAP`), indo para o
+  lado do eixo vertical. `GlassField` diminui a fonte (até 8 pt) quando o texto não cabe.
+- `ui/motion.py` (`fade_in`, 150 ms): troca de aba, seletor Círculo/Gráficos e resultado do "=".
+  Desligado com "reduzir movimento". Testes que fotografam a janela esperam o efeito acabar.
+- Ícone desenhado em `icons.paint_app_icon`/`app_icon`; `AppUserModelID` para a barra de tarefas.
+- Licença MIT (`LICENSE`). Cores do escuro: seno `#FFB3D9` e cosseno `#A8D6FF` (contraste nos botões).
 
 ## Interface (Etapas 3 e 4)
 

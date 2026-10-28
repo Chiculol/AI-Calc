@@ -166,3 +166,9 @@ Funções exigem parênteses (`sin 30` mostra "Use parênteses: sin(30)").
 - Etapa 4B: ao digitar um ângulo ou trocar a solução, o ponto desliza em 300 ms pelo caminho mais
   curto; os números do painel mudam na hora. Mouse e setas movem sem animação.
 - Etapa 4B: ângulo escolhido com o mouse fica em grau inteiro (ou no notável, se estiver perto).
+- Etapa 5A: botões sen/cos/tan na aba Trigonometria (60 px cada, à direita do seletor; na janela
+  larga, alinhados à direita). Desligado: amostra cinza e nome riscado. A última ligada fica
+  desativada. A escolha é salva.
+- Etapa 5A: esmaecer de 150 ms na troca de aba, no seletor Círculo/Gráficos e no resultado do "=".
+- Etapa 5A: ícone próprio (degradê roxo → turquesa com o círculo trigonométrico e o seno em âmbar).
+- Etapa 5A: licença MIT, em nome de Francisco Aurélio.

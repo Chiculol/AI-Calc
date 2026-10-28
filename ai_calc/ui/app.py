@@ -12,6 +12,7 @@ from PySide6.QtWidgets import QApplication
 
 from ..core.history import History
 from ..core.preferences import Preferences
+from .icons import app_icon
 from .main_window import MainWindow
 from .theme import ThemeManager
 
@@ -32,7 +33,20 @@ def create_app(argv: list[str] | None = None) -> QApplication:
     font.setFamilies(FONT_FAMILIES)
     font.setPointSize(FONT_POINT_SIZE)
     app.setFont(font)
+    app.setWindowIcon(app_icon())
     return app
+
+
+def _use_own_taskbar_icon() -> None:
+    """No Windows, faz a barra de tarefas mostrar o ícone do AI Calc, e não o do Python."""
+    if sys.platform != "win32":
+        return
+    try:
+        import ctypes
+
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Chiculol.AICalc")
+    except Exception:  # sem a API: fica o ícone padrão
+        logger.debug("Não foi possível definir o AppUserModelID", exc_info=True)
 
 
 def data_folder() -> Path:
@@ -58,6 +72,7 @@ def build_window(folder: Path, **theme_options) -> MainWindow:
 def main() -> int:
     logging.basicConfig(level=logging.INFO)
     sys.excepthook = _log_unexpected
+    _use_own_taskbar_icon()
     app = create_app()
     window = build_window(data_folder())
     window.show()

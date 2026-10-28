@@ -1,4 +1,4 @@
-# AI Calc: lista de conferência (Etapas 3 e 4)
+# AI Calc: lista de conferência (Etapas 3 a 5)
 
 Marque cada item depois de testar. Abra o app com:
 
@@ -94,3 +94,15 @@ conta ou da primeira mudança de tema, modo ou aba.
       "Círculo | Gráficos" e tudo cabe.
 - [ ] Tab passa por seletor, círculo, campos e botões; o Narrador lê o círculo como
       "Ângulo 30 graus, 1º quadrante, seno 0,5, …".
+
+## 9. Acabamento (Etapa 5A)
+
+- [ ] Botões **sen / cos / tan** no topo da aba Trigonometria: desligar a tangente tira a linha do
+      círculo, a curva dos gráficos e a linha do painel. O botão desligado fica riscado.
+- [ ] Desligue duas funções: a que sobrou fica bloqueada. Feche e abra o app: a escolha continua.
+- [ ] Gire o ponto pelos quatro quadrantes: o número do quadrante não fica embaixo do raio nem
+      em cima do rótulo "sen".
+- [ ] Janela estreita, seno `-0,707106781187`: o texto do campo diminui e cabe.
+- [ ] Trocar de aba, trocar Círculo/Gráficos e apertar "=" esmaecem rapidamente; com
+      "reduzir movimento", trocam na hora.
+- [ ] O ícone do AI Calc aparece na janela e na barra de tarefas (não o do Python).

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from PySide6.QtCore import QEvent, QObject, QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QPainter, QPalette
+from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPalette
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget
 
 from .glass import paint_focus_ring, paint_glass, set_text_color
@@ -11,6 +11,8 @@ from .theme import KEY_ALPHA, ThemeManager
 
 FIELD_RADIUS = 10
 FIELD_HEIGHT = 40
+TEXT_POINT_SIZE = 11
+TEXT_MIN_POINT_SIZE = 8     # texto longo diminui até aqui antes de rolar dentro do campo
 
 
 class GlassField(QWidget):
@@ -37,6 +39,7 @@ class GlassField(QWidget):
         self.caption.setBuddy(self.edit)
         self.edit.installEventFilter(self)
         self.edit.editingFinished.connect(self._finished)
+        self.edit.textChanged.connect(lambda _: self._fit_text())
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(12, 2, 12, 4)
@@ -46,6 +49,22 @@ class GlassField(QWidget):
 
         theme.changed.connect(self.apply_colors)
         self.apply_colors()
+
+    def resizeEvent(self, event) -> None:  # noqa: N802 (nome do Qt)
+        super().resizeEvent(event)
+        self._fit_text()
+
+    def _fit_text(self) -> None:
+        """Diminui a fonte quando o texto não cabe (ex.: seno 0,707106781187 na janela estreita)."""
+        room = self.edit.width() - 8
+        font = QFont(self.edit.font())
+        size = TEXT_POINT_SIZE
+        font.setPointSize(size)
+        while size > TEXT_MIN_POINT_SIZE and QFontMetrics(font).horizontalAdvance(self.edit.text()) > room:
+            size -= 1
+            font.setPointSize(size)
+        if font.pointSize() != self.edit.font().pointSize():
+            self.edit.setFont(font)
 
     def show_value(self, text: str) -> None:
         """Mostra o valor atual, sem atrapalhar quem está digitando no campo."""

@@ -35,6 +35,8 @@ etapas pequenas, cada uma com testes automáticos.
   e "Também vale: θ + 360° × k".
 - Campos "Ângulo" (aceita contas como `450`, `-30` ou `π/6`) e "Seno": seno `0,5` leva a 30°, e o
   botão "Outra: 150°" mostra a outra solução (desativado em seno 1 ou −1, que só têm uma).
+- Botões **sen**, **cos** e **tan** para mostrar ou esconder cada função (no círculo, nos gráficos
+  e no painel); a escolha é lembrada.
 - Janela larga: círculo e gráficos lado a lado. Janela estreita: seletor "Círculo | Gráficos".
 - O ponto desliza até o novo ângulo; com "reduzir movimento", vai direto.
 
@@ -50,7 +52,8 @@ etapas pequenas, cada uma com testes automáticos.
   transição de 450 ms. Um segundo clique no meio da transição a faz voltar do ponto em que
   estava.
 - Abre seguindo o tema do Windows. Depois de escolhido no botão de lua/sol, vale o tema escolhido.
-- Animações discretas de clique. Com "reduzir movimento" ligado no Windows, tudo fica instantâneo.
+- Animações discretas de clique e de troca de aba. Com "reduzir movimento" ligado no Windows,
+  tudo fica instantâneo.
 
 **Histórico e preferências**
 - As 20 últimas contas, com a mais nova em cima e a etiqueta DEG/RAD nas contas com trigonometria.
@@ -98,7 +101,7 @@ O histórico e as preferências ficam em `%APPDATA%\AI Calc`.
 pytest
 ```
 
-São 546 testes. Eles cobrem o motor de cálculo, o círculo trigonométrico, o histórico e as
+São 576 testes. Eles cobrem o motor de cálculo, o círculo trigonométrico, o histórico e as
 preferências, além da janela (com [pytest-qt](https://pytest-qt.readthedocs.io/), em modo
 offscreen, sem abrir nada na tela). Os testes de janela clicam nas teclas, usam o teclado,
 arrastam o ponto do círculo, trocam o tema no meio da transição e conferem as cores de cada
@@ -136,4 +139,8 @@ As decisões de comportamento (porcentagem, fatorial, erros, precedência...) es
 | 2 | Lógica do círculo trigonométrico | ✅ |
 | 3 | Interface Comum e Científica, tema claro/escuro, vidro, histórico e preferências | ✅ |
 | 4 | Aba Trigonometria: círculo interativo e gráficos | ✅ |
-| 5 | Acabamento: mostrar/esconder cada função, animações e ajustes finais | próxima |
+| 5 | Acabamento: mostrar/esconder cada função, transições, ícone e executável | em andamento |
+
+## Licença
+
+[MIT](LICENSE): pode usar, copiar e modificar, mantendo o aviso de autoria.

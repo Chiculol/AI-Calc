@@ -13,6 +13,7 @@ from PySide6.QtGui import QAccessible, QAccessibleEvent, QFont, QKeyEvent, QMous
 from PySide6.QtWidgets import QSizePolicy, QWidget
 
 from ..core.trig import (
+    TRIG_FUNCTIONS,
     TrigCircleState,
     angle_from_point,
     angle_text,
@@ -29,6 +30,8 @@ PANEL_RADIUS = 16
 LABEL_MARGIN = 30       # espaço em volta do círculo para os rótulos
 KEY_STEP = 1.0          # setas: 1°
 KEY_BIG_STEP = 15.0     # Shift + setas: 15°
+QUADRANT_LABEL_RADIUS = 0.64   # distância dos números dos quadrantes ao centro (raio = 1)
+QUADRANT_LABEL_GAP = 16.0      # se o raio passar a menos disto (graus), o número se afasta
 
 # (chave da cor na paleta, estilo da linha, rótulo) de cada função.
 FUNCTION_STYLES = {
@@ -62,6 +65,7 @@ class TrigCircleWidget(QWidget):
         self._dragging = False
         # Ângulo desenhado: igual ao do estado, ou a caminho dele durante a animação do ponto.
         self.shown_angle = state.angle
+        self.visible: frozenset[str] = frozenset(TRIG_FUNCTIONS)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
         self.setMinimumSize(200, 190)
@@ -88,6 +92,10 @@ class TrigCircleWidget(QWidget):
         """Atualiza o desenho e o resumo para leitor de tela."""
         self.setAccessibleDescription(describe(self.state, self.mode))
         QAccessible.updateAccessibility(QAccessibleEvent(self, QAccessible.Event.DescriptionChanged))
+        self.update()
+
+    def set_visible(self, visible: frozenset[str]) -> None:
+        self.visible = frozenset(visible)
         self.update()
 
     def set_shown_angle(self, angle: float) -> None:
@@ -179,8 +187,8 @@ class TrigCircleWidget(QWidget):
         current = quadrant(shown)
         small = QFont(self.font())
         small.setPointSize(9)
-        for number, (sx, sy) in enumerate(((1, 1), (-1, 1), (-1, -1), (1, -1)), start=1):
-            spot = self._point(center, radius, 0.45 * sx, 0.45 * sy)
+        for number in range(1, 5):
+            spot = self._quadrant_spot(center, radius, number, shown)
             small.setBold(number == current)
             painter.setFont(small)
             painter.setPen(theme.color("text") if number == current else muted)
@@ -192,7 +200,7 @@ class TrigCircleWidget(QWidget):
         painter.drawArc(QRectF(center.x() - arc, center.y() - arc, 2 * arc, 2 * arc), 0, int(shown * 16))
 
         # Tangente: na reta x = 1, de (1, 0) até (1, tan); o raio é prolongado até lá.
-        if tangent is not None:
+        if tangent is not None and "tan" in self.visible:
             # Tangente enorme (perto de 90°): corta na borda, para não desenhar longe demais.
             limit = panel.height() / radius
             tan_point = self._point(center, radius, 1, max(-limit, min(limit, tangent)))
@@ -204,14 +212,17 @@ class TrigCircleWidget(QWidget):
 
         # Cosseno (horizontal, sobre o eixo x) e seno (vertical, do eixo até o ponto).
         foot = self._point(center, radius, cos_t, 0)
-        painter.setPen(function_pen(theme, "cos"))
-        painter.drawLine(center, foot)
-        painter.setPen(function_pen(theme, "sin"))
-        painter.drawLine(foot, tip)
-        self._label(painter, "cos", QPointF((center.x() + foot.x()) / 2, center.y() + (14 if sin_t >= 0 else -14)), "center")
-        # O rótulo do seno fica sempre à esquerda do segmento: à direita do círculo isso o
-        # afasta da reta da tangente; à esquerda, dos números dos quadrantes.
-        self._label(painter, "sin", QPointF(foot.x() - 8, (foot.y() + tip.y()) / 2), "right")
+        if "cos" in self.visible:
+            painter.setPen(function_pen(theme, "cos"))
+            painter.drawLine(center, foot)
+            self._label(painter, "cos", QPointF((center.x() + foot.x()) / 2,
+                                               center.y() + (14 if sin_t >= 0 else -14)), "center")
+        if "sin" in self.visible:
+            painter.setPen(function_pen(theme, "sin"))
+            painter.drawLine(foot, tip)
+            # O rótulo do seno fica sempre à esquerda do segmento: à direita do círculo isso o
+            # afasta da reta da tangente; à esquerda, dos números dos quadrantes.
+            self._label(painter, "sin", QPointF(foot.x() - 8, (foot.y() + tip.y()) / 2), "right")
 
         # Raio e ponto que se arrasta.
         painter.setPen(QPen(theme.color("text"), 2))
@@ -235,6 +246,23 @@ class TrigCircleWidget(QWidget):
         painter.setClipping(False)
         if self.hasFocus():
             paint_focus_ring(painter, panel, PANEL_RADIUS, theme.color("focus"))
+
+    def _quadrant_spot(self, center: QPointF, radius: float, number: int, shown: float) -> QPointF:
+        """Posição do número do quadrante: no meio do quadrante, afastada do raio se ele passar perto."""
+        middle = 45.0 + 90.0 * (number - 1)
+        gap = (shown - middle + 180) % 360 - 180          # do meio do quadrante até o raio
+        if abs(gap) < QUADRANT_LABEL_GAP:
+            # Passa para o lado do eixo vertical (o seno fica do lado do eixo horizontal);
+            # se assim sair do quadrante, vai para o outro lado do raio.
+            step = QUADRANT_LABEL_GAP + 4
+            toward_vertical = 1 if number in (1, 3) else -1
+            low, high = 90.0 * (number - 1) + 8, 90.0 * number - 8
+            middle = shown + toward_vertical * step
+            if not low <= middle <= high:
+                middle = shown - toward_vertical * step
+        angle = math.radians(middle)
+        return self._point(center, radius, QUADRANT_LABEL_RADIUS * math.cos(angle),
+                           QUADRANT_LABEL_RADIUS * math.sin(angle))
 
     def _label(self, painter: QPainter, name: str, spot: QPointF, align: str) -> None:
         key, _, text = FUNCTION_STYLES[name]

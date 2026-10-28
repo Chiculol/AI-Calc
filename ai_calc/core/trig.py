@@ -224,6 +224,21 @@ def angle_text(angle: float, mode: str = "DEG") -> str:
     return f"{format_number(normalize_degrees(angle))}°"
 
 
+TRIG_FUNCTIONS = ("sin", "cos", "tan")
+
+
+def toggle_visible(visible: frozenset[str], name: str) -> frozenset[str]:
+    """Liga ou desliga uma função no círculo e nos gráficos.
+
+    A última função visível não pode ser desligada (devolve o conjunto sem mudar).
+    """
+    if name not in TRIG_FUNCTIONS:
+        raise ValueError(f"Função desconhecida: {name}")
+    if name in visible:
+        return visible if len(visible) == 1 else visible - {name}
+    return visible | {name}
+
+
 GraphSegment = list[tuple[float, float]]
 
 
