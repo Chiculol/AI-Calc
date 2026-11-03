@@ -18,8 +18,9 @@ from ..core.preferences import Preferences
 from .confirm_dialog import ConfirmDialog
 from .display import Display
 from .glass import Backdrop
-from .glass_button import HistoryToggleButton, ThemeToggleButton
+from .glass_button import GlassButton, HistoryToggleButton, ThemeToggleButton
 from .history_panel import HistoryPanel
+from .percentage_panel import PercentagePanel
 from .motion import fade_in
 from .keypad import (
     ANGLE_MODE,
@@ -73,6 +74,7 @@ class MainWindow(QMainWindow):
         self.preferences = preferences or Preferences()
         self._docked = False
         self._drawer_open = False
+        self._percentage_open = False
 
         # --- topo ---
         self.tabs = GlassTabBar(self.theme, self)
@@ -125,7 +127,27 @@ class MainWindow(QMainWindow):
         top.addWidget(self.theme_button)
         column.addLayout(top)
         column.addWidget(self.display)
+
+        self.percentage_button = GlassButton("Porcentagem", self.theme, role="function", small=True, parent=self)
+        self.percentage_button.setFixedHeight(30)
+        self.percentage_button.setAccessibleName("Porcentagem")
+        self.percentage_button.setToolTip("Abrir painel de porcentagem")
+        self.percentage_button.clicked.connect(self.toggle_percentage_panel)
+
+        self.common_tools = QWidget(self.calculator)
+        common_tools_layout = QHBoxLayout(self.common_tools)
+        common_tools_layout.setContentsMargins(0, 0, 0, 0)
+        common_tools_layout.setSpacing(6)
+        common_tools_layout.addWidget(self.percentage_button)
+        common_tools_layout.addStretch(1)
+        column.addWidget(self.common_tools)
+
         column.addWidget(self.pages, 1)
+
+        self.percentage_panel = PercentagePanel(self.theme, self.calculator)
+        self.percentage_panel.value_chosen.connect(self.insert_percentage_value)
+        self.percentage_panel.close_requested.connect(self.close_percentage_panel)
+        self.percentage_panel.hide()
 
         self.history_panel = HistoryPanel(self.theme, central)
         self.history_panel.setFixedWidth(PANEL_WIDTH)
@@ -153,11 +175,16 @@ class MainWindow(QMainWindow):
 
         self.theme.apply()
         self._update_history_layout()
+        self.common_tools.setVisible(self.tabs.currentIndex() == COMMON_TAB)
         self._refresh()
 
     @property
     def current_keypad(self) -> Keypad:
         return self.pages.currentWidget()
+
+    @property
+    def percentage_panel_open(self) -> bool:
+        return self._percentage_open
 
     @property
     def history_docked(self) -> bool:
@@ -205,6 +232,9 @@ class MainWindow(QMainWindow):
         # A aba Trigonometria não usa o visor e dá o espaço do histórico ao círculo
         # (o histórico continua na gaveta, pelo botão de relógio).
         self.display.setVisible(index != TRIG_TAB)
+        self.common_tools.setVisible(index == COMMON_TAB)
+        if index != COMMON_TAB and self._percentage_open:
+            self.close_percentage_panel()
         self._update_history_layout()
         if index in TAB_NAMES:
             self.preferences.update(last_tab=TAB_NAMES[index])
@@ -281,7 +311,11 @@ class MainWindow(QMainWindow):
         panel = self.history_panel
         self._slide(panel, panel.pos(), QPoint(self.centralWidget().width(), panel.y()))
         self._update_history_button()
-        self.history_button.setFocus(Qt.FocusReason.TabFocusReason)
+        if self._percentage_open:
+            self._update_percentage_layout()
+            self.percentage_panel.raise_()
+        else:
+            self.history_button.setFocus(Qt.FocusReason.TabFocusReason)
 
     def _slide(self, panel: QWidget, start: QPoint, end: QPoint) -> None:
         self._drawer_animation.stop()
@@ -296,6 +330,9 @@ class MainWindow(QMainWindow):
     def _drawer_animation_finished(self) -> None:
         if not self._drawer_open and not self._docked:
             self.history_panel.hide()
+        if self._percentage_open:
+            self._update_percentage_layout()
+            self.percentage_panel.raise_()
 
     def _drawer_geometry(self):
         central = self.centralWidget()
@@ -334,9 +371,51 @@ class MainWindow(QMainWindow):
         self.history_button.setAccessibleName(label)
         self.history_button.setToolTip(label)
 
+    # --- porcentagem ---------------------------------------------------------
+    def toggle_percentage_panel(self) -> None:
+        if self._percentage_open:
+            self.close_percentage_panel()
+        else:
+            self.open_percentage_panel()
+
+    def open_percentage_panel(self) -> None:
+        if self.tabs.currentIndex() != COMMON_TAB:
+            self.tabs.setCurrentIndex(COMMON_TAB)
+        self._percentage_open = True
+        self.common_keypad.setEnabled(False)
+        self._update_percentage_layout()
+        self.percentage_panel.raise_()
+        self.percentage_panel.show()
+        self.percentage_panel.focus_first_field()
+        self._update_percentage_button()
+
+    def close_percentage_panel(self) -> None:
+        if not self._percentage_open:
+            return
+        self._percentage_open = False
+        self.percentage_panel.hide()
+        self.common_keypad.setEnabled(True)
+        self._update_percentage_button()
+        self.percentage_button.setFocus(Qt.FocusReason.TabFocusReason)
+
+    def insert_percentage_value(self, number: str) -> None:
+        self.editor.insert_value(number)
+        self._refresh()
+        self.close_percentage_panel()
+
+    def _update_percentage_layout(self) -> None:
+        if not self._percentage_open:
+            return
+        self.percentage_panel.setGeometry(self.pages.geometry())
+
+    def _update_percentage_button(self) -> None:
+        label = "Fechar painel de porcentagem" if self._percentage_open else "Abrir painel de porcentagem"
+        self.percentage_button.setToolTip(label)
+
     def resizeEvent(self, event) -> None:  # noqa: N802 (nome do Qt)
         super().resizeEvent(event)
         self._update_history_layout()
+        self._update_percentage_layout()
 
     # --- teclado físico ------------------------------------------------------
     def keyPressEvent(self, event: QKeyEvent) -> None:  # noqa: N802 (nome do Qt)
@@ -346,6 +425,10 @@ class MainWindow(QMainWindow):
             super().keyPressEvent(event)
             return
 
+        if key == Qt.Key.Key_Escape and self._percentage_open:
+            self.close_percentage_panel()
+            event.accept()
+            return
         if key == Qt.Key.Key_Escape and self._drawer_open:
             self.close_history_drawer()
         elif self.tabs.currentIndex() == TRIG_TAB:
