@@ -110,7 +110,7 @@ conta ou da primeira mudança de tema, modo ou aba.
 
 ## 10. Executável (Etapa 5B)
 
-- [ ] Baixe o `AI Calc.exe` da página de Releases (ou gere com `tools/gerar_executavel.py`).
+- [ ] Baixe o executável do Windows em **Assets** na página de Releases (ou gere com `tools/gerar_executavel.py`).
 - [ ] Abra com dois cliques. Se aparecer "O Windows protegeu o computador": Mais informações →
       Executar assim mesmo.
 - [ ] O ícone da calculadora aparece no arquivo, na janela e na barra de tarefas.
@@ -118,3 +118,20 @@ conta ou da primeira mudança de tema, modo ou aba.
 - [ ] O histórico e as preferências são os mesmos de quando o app roda pelo Python
       (mesma pasta `%APPDATA%\AI Calc`).
 - [ ] Repita rapidamente as seções 1, 4 e 8 no executável.
+
+## 11. Painel Porcentagem (Etapa 6)
+
+- [ ] No executável, na aba **Comum**, digite `200 ×`. Abra **Porcentagem**,
+      calcule **36 de 240** e confira `15%`. Clique em **Usar resultado** e
+      depois em `=`. O visor deve mostrar `30`.
+- [ ] Em **Variação (%)**, calcule de 240 para 204 e confira `−15%`.
+- [ ] Em **Valor original**, informe 150 e desconto de 25% e confira `200`.
+      Repita com `25,0` e `25.0`.
+- [ ] Informe total ou valor inicial zero, desconto de 100% ou um campo
+      inválido. Confira a mensagem de erro e o bloqueio da inserção.
+- [ ] Após um cálculo válido, altere um campo ou troque a operação.
+      **Usar resultado** deve ficar desabilitado até um novo cálculo válido.
+- [ ] Na largura mínima, confira o alinhamento ao abrir e fechar a gaveta
+      do histórico. Teste nos temas claro e escuro.
+- [ ] Com o painel aberto, Tab e Shift+Tab pulam teclas encobertas.
+      Pressione Esc com um campo em foco e confira o retorno ao botão.

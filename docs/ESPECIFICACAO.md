@@ -34,6 +34,25 @@ Para rodar os testes: `pip install -r requirements.txt` e depois `pytest`.
 | `(2 + 3)%` | vale sobre o resultado do parêntese | 0,05 |
 | `200 + 10% × 3` | o `%` só é "da base" quando é o termo inteiro à direita de `+` ou `−`; aqui vale 0,1 | 200,3 |
 
+### Painel Porcentagem (Etapa 6)
+
+O botão **Porcentagem** fica abaixo do visor na aba **Comum**. O painel aceita
+ponto ou vírgula decimal.
+
+| Operação | Cálculo | Exemplo |
+|---|---|---|
+| Parte do total | Parte ÷ total | 36 de 240 → 15% |
+| Variação (%) | (Valor final − valor inicial) ÷ valor inicial | De 240 para 204 → −15% |
+| Valor original | Valor final ÷ (1 − taxa de desconto) | 150 após 25% de desconto → 200 |
+
+Na variação, a base mantém seu sinal. Total ou valor inicial igual a zero
+gera erro. O desconto deve ser maior ou igual a 0% e menor que 100%.
+
+O motor trabalha com taxas em fração decimal. O painel exibe `15%`, mas
+**Usar resultado** insere `0,15` pelo editor da calculadora. Alterar um campo
+ou trocar a operação invalida o resultado anterior. Esc fecha o painel
+e devolve o foco ao botão **Porcentagem**.
+
 ## Ponto 2: Fatorial
 
 - Inteiros de 0 a 170. `171!` ou mais: "Fatorial limitado a 170".
