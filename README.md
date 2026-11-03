@@ -20,6 +20,9 @@ etapas pequenas, cada uma com testes automáticos.
 - Modo de ângulo **DEG/RAD**, com resultados exatos nos ângulos notáveis (`tan(45)` = 1,
   `tan(90)` é "Indefinida").
 - Porcentagem como numa calculadora de mesa: `200 + 10%` = 220.
+- Na aba **Comum**, o painel **Porcentagem** calcula parte do total, variação percentual e
+  valor original antes de um desconto. **Usar resultado** insere o valor na expressão atual.
+  Por exemplo, 36 de 240 aparece como `15%` e é inserido como `0,15`.
 - Multiplicação implícita com aviso: `2(3+4)` mostra "Interpretado como: 2 × (3 + 4)".
 - Números com vírgula decimal, até 12 dígitos significativos e notação científica (`1e+20`).
 - Mensagens de erro em português ("Divisão por zero inválida", "Expressão incompleta"...).
@@ -78,7 +81,7 @@ etapas pequenas, cada uma com testes automáticos.
 
 ## Baixar
 
-Para usar sem instalar nada: baixe o **`AI Calc.exe`** na página de
+Para usar sem instalar nada: baixe o **executável do Windows** em **Assets** na página de
 [Releases](https://github.com/Chiculol/AI-Calc/releases/latest) e abra com dois cliques
 (Windows 10 ou 11).
 
@@ -121,7 +124,7 @@ O `AI Calc.exe` (um arquivo só, cerca de 45 MB) aparece em `dist/`. O ícone ve
 pytest
 ```
 
-São 576 testes. Eles cobrem o motor de cálculo, o círculo trigonométrico, o histórico e as
+Os testes cobrem o painel de porcentagem, o motor de cálculo, o círculo trigonométrico, o histórico e as
 preferências, além da janela (com [pytest-qt](https://pytest-qt.readthedocs.io/), em modo
 offscreen, sem abrir nada na tela). Os testes de janela clicam nas teclas, usam o teclado,
 arrastam o ponto do círculo, trocam o tema no meio da transição e conferem as cores de cada
@@ -160,6 +163,7 @@ As decisões de comportamento (porcentagem, fatorial, erros, precedência...) es
 | 3 | Interface Comum e Científica, tema claro/escuro, vidro, histórico e preferências | ✅ |
 | 4 | Aba Trigonometria: círculo interativo e gráficos | ✅ |
 | 5 | Acabamento: mostrar/esconder cada função, transições, ícone e executável | ✅ |
+| 6 | Motor e painel de porcentagem | ✅ |
 
 ## Licença
 
